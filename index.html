@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Startup Team Hub</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --badge-bg: #0ea5e9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header & Live Counter */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(90deg, #60a5fa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .total-counter {
+      display: inline-block;
+      background: var(--card);
+      padding: 0.6rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .total-counter span {
+      color: #38bdf8;
+      font-size: 1.25rem;
+      margin-left: 0.4rem;
+    }
+
+    /* Add Member Form */
+    .add-panel {
+      background: var(--card);
+      padding: 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-panel input, .add-panel select {
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .add-panel input:focus, .add-panel select:focus {
+      border-color: var(--accent);
+    }
+
+    .add-panel button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .add-panel button:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Round Role Nodes (Touch/Click Targets) */
+    .section-label {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .roles-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .role-circle {
+      width: 135px;
+      height: 135px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 3px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      padding: 0.75rem;
+      text-align: center;
+      user-select: none;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+    }
+
+    .role-circle:hover {
+      transform: translateY(-5px);
+      border-color: #60a5fa;
+    }
+
+    .role-circle.active {
+      border-color: #38bdf8;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+    }
+
+    .role-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .role-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .role-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--badge-bg);
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      border: 2px solid var(--bg);
+    }
+
+    /* Live Member Display Area */
+    .details-box {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+    }
+
+    .details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .details-header h2 {
+      font-size: 1.35rem;
+      color: #38bdf8;
+    }
+
+    .member-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+      list-style: none;
+    }
+
+    .member-card {
+      background: var(--bg);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .member-info h4 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .member-info p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .delete-btn {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: rgba(239, 68, 68, 0.35);
+    }
+
+    .empty-msg {
+      color: var(--muted);
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>🚀 Startup Team Hub</h1>
+      <div class="total-counter">
+        Total Startup Members: <span id="totalCount">0</span>
+      </div>
+    </header>
+
+    <!-- Live Add Member Form -->
+    <div class="add-panel">
+      <input type="text" id="memberName" placeholder="Member Name (e.g., Karthik)" />
+      <input type="text" id="memberSubRole" placeholder="Specific Title (e.g., Lead Designer)" />
+      <select id="departmentSelect">
+        <option value="Management">👑 Core Management (Founders)</option>
+        <option value="FullStack">💻 Full-Stack & Web Dev</option>
+        <option value="UIUX">🎨 UI/UX Design</option>
+        <option value="CyberSec">🛡️ Cybersecurity & DevSecOps</option>
+        <option value="AI">🤖 AI & Automation</option>
+        <option value="Marketing">📈 Growth & Sales</option>
+        <option value="Operations">⚙️ HR & Operations</option>
+      </select>
+      <button onclick="addMember()">+ Add Member</button>
+    </div>
+
+    <p class="section-label">👇 Touch / Click any round department below to view live team list</p>
+
+    <!-- Round Interactive Department Buttons -->
+    <div class="roles-grid" id="rolesGrid"></div>
+
+    <!-- Live Member Details List -->
+    <div class="details-box">
+      <div class="details-header">
+        <h2 id="activeDeptTitle">Department</h2>
+        <span id="activeDeptStats" style="color: var(--muted); font-size: 0.95rem;">0 Members</span>
+      </div>
+      <ul class="member-list" id="memberList"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Startup Departments Data (Pre-loaded with 3 Core Management members & Startup Teams)
+    const startupTeams = {
+      Management: {
+        title: "Core Management",
+        icon: "👑",
+        members: [
+          { name: "Founder 1", role: "CEO & Product Vision" },
+          { name: "Founder 2", role: "CTO & Tech Architecture" },
+          { name: "Founder 3", role: "COO & Client Strategy" }
+        ]
+      },
+      FullStack: {
+        title: "Full-Stack Dev",
+        icon: "💻",
+        members: [
+          { name: "Arun", role: "Frontend Developer" },
+          { name: "Priya", role: "Backend Node.js Dev" }
+        ]
+      },
+      UIUX: {
+        title: "UI/UX Design",
+        icon: "🎨",
+        members: [
+          { name: "Divya", role: "UI/UX Product Designer" },
+          { name: "Sanjay", role: "Interaction & Prototype Designer" }
+        ]
+      },
+      CyberSec: {
+        title: "Cybersecurity",
+        icon: "🛡️",
+        members: [
+          { name: "Vikram", role: "Penetration Tester (Red Team)" },
+          { name: "lokesh", role: "SOC & Cloud Security (Blue Team)" }
+        ]
+      },
+      AI: {
+        title: "AI & Automation",
+        icon: "🤖",
+        members: [
+          { name: "Meera", role: "AI Agent & Prompt Engineer" }
+        ]
+      },
+      Marketing: {
+        title: "Growth & Sales",
+        icon: "📈",
+        members: [
+          { name: "Rahul", role: "Client Acquisition & B2B Sales" },
+          { name: "Sneha", role: "Digital Marketing Lead" }
+        ]
+      },
+      Operations: {
+        title: "HR & Ops",
+        icon: "⚙️",
+        members: [
+          { name: "Kavin", role: "Finance & Talent Operations" }
+        ]
+      }
+    };
+
+    let currentDepartment = "Management";
+
+    // Render Round Nodes & Active List
+    function renderDashboard() {
+      const rolesGrid = document.getElementById("rolesGrid");
+      rolesGrid.innerHTML = "";
+      let totalMembers = 0;
+
+      for (const [key, dept] of Object.entries(startupTeams)) {
+        const count = dept.members.length;
+        totalMembers += count;
+
+        const circle = document.createElement("div");
+        circle.className = `role-circle ${key === currentDepartment ? "active" : ""}`;
+        circle.onclick = () => selectDepartment(key);
+
+        circle.innerHTML = `
+          <div class="role-badge">${count}</div>
+          <div class="role-icon">${dept.icon}</div>
+          <div class="role-title">${dept.title}</div>
+        `;
+
+        rolesGrid.appendChild(circle);
+      }
+
+      document.getElementById("totalCount").innerText = totalMembers;
+      renderMemberList();
+    }
+
+    // Render Members of Selected Round Node
+    function renderMemberList() {
+      const dept = startupTeams[currentDepartment];
+      document.getElementById("activeDeptTitle").innerText = `${dept.icon} ${dept.title} Team`;
+      document.getElementById("activeDeptStats").innerText = `Showing ${dept.members.length} Member(s)`;
+
+      const listEl = document.getElementById("memberList");
+      listEl.innerHTML = "";
+
+      if (dept.members.length === 0) {
+        listEl.innerHTML = `<li class="empty-msg">No members in this team yet. Add someone above!</li>`;
+        return;
+      }
+
+      dept.members.forEach((member, idx) => {
+        const li = document.createElement("li");
+        li.className = "member-card";
+        li.innerHTML = `
+          <div class="member-info">
+            <h4>${member.name}</h4>
+            <p>${member.role}</p>
+          </div>
+          <button class="delete-btn" title="Remove Member" onclick="removeMember('${currentDepartment}', ${idx})">✕</button>
+        `;
+        listEl.appendChild(li);
+      });
+    }
+
+    // Switch Active Department on Touch/Click
+    function selectDepartment(deptKey) {
+      currentDepartment = deptKey;
+      document.getElementById("departmentSelect").value = deptKey;
+      renderDashboard();
+    }
+
+    // Add New Member Live
+    function addMember() {
+      const nameInput = document.getElementById("memberName");
+      const roleInput = document.getElementById("memberSubRole");
+      const deptKey = document.getElementById("departmentSelect").value;
+
+      const name = nameInput.value.trim();
+      const role = roleInput.value.trim() || "Team Member";
+
+      if (!name) {
+        alert("Please enter a member name!");
+        return;
+      }
+
+      startupTeams[deptKey].members.push({ name, role });
+      nameInput.value = "";
+      roleInput.value = "";
+      currentDepartment = deptKey;
+      renderDashboard();
+    }
+
+    // Remove Member Live
+    function removeMember(deptKey, index) {
+      startupTeams[deptKey].members.splice(index, 1);
+      renderDashboard();
+    }
+
+    // Initialize Page
+    renderDashboard();
+  </script>
+</body>
+  </html>
+  
